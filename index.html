@@ -8,14 +8,12 @@
   
 </head>
 <body>
-    <h1>Telit FN990A40 as our COTS UE</h1>
+    <h1>Telit FN990A40 as our COTsS UE</h1>
 
     <a href="https://techship.com/product/telit-fn990a40-5g-sub6-m2/?variant=005">Purchase link</a>
 
     <br>
-   Script we used to run:
-   
-  
+   Script to initiate the connection:
    <pre>
     <span class="comment">#!/bin/bash</span>
     
@@ -44,31 +42,86 @@
     <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-p</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--wds-get-packet-service-status</span>
     <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-p</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--wds-get-current-settings</span>
     <span class="command">sleep</span> <span class="argument">2</span>
-    <span class="command">sudo</span> <span class="command">udhcpc</span> <span class="argument">-q</span> <span class="argument">-f</span> <span class="argument">-i</span> <span class="variable">$wwan_interface</span>
-    </pre>
+    <span class="command">sudo</span> <span class="command">udhcpc</span> <span class="argument">-q</span> <span class="argument">-f</span> <span class="argument">-i</span> <span class="variable">$wwan_interface</span></pre>
     
+Script to stop the connection:
+<pre>
+    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-d</span> <span class="string">/dev/cdc-wdm1</span> <span class="argument">--dms-set-operating-mode=</span><span class="string">"low-power"</span>
+    <span class="command">sudo</span> <span class="command">qmi-network</span> <span class="string">/dev/cdc-wdm1</span> <span class="argument">stop</span></pre>
 
     <h2>Results:</h2>
+    <h3>Stable</h3>
 
     <div class="slider">
         <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
         <div class="slides">
             <div class="slide">
                 <figure>
-                    <img src="/OAIxCOTS/images/20M.png" alt="20M">
-                    <figcaption class="caption">Graph #1: 20M</figcaption>
+                    <img src="/Telit5G/images/stable(10).png" alt="10M">
+                    <figcaption class="caption">Graph #1: 10M</figcaption>
                 </figure>
             </div>
             <div class="slide">
                 <figure>
-                    <img src="/OAIxCOTS/images/50M.png" alt="50M">
-                    <figcaption class="caption">Graph #2: 50M</figcaption>
+                    <img src="/Telit5G/images/stable(100).png" alt="100M">
+                    <figcaption class="caption">Graph #2: 100M</figcaption>
                 </figure>
             </div>
             <div class="slide">
                 <figure>
-                    <img src="/OAIxCOTS/images/100M.png" alt="100M">
-                    <figcaption class="caption">Graph #3: 100M</figcaption>
+                    <img src="/Telit5G/images/stable(115).png" alt="115M">
+                    <figcaption class="caption">Graph #3: 115M</figcaption>
+                </figure>
+            </div>
+        </div>
+        <button class="next" onclick="moveSlide(1)">&#10095;</button>
+    </div>
+
+    <h3>Mobile:</h3>
+
+    <div class="slider">
+        <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
+        <div class="slides">
+            <div class="slide">
+                <figure>
+                    <img src="/Telit5G/images/mobile(5).png" alt="5M">
+                    <figcaption class="caption">Graph #1: 5M</figcaption>
+                </figure>
+            </div>
+            <div class="slide">
+                <figure>
+                    <img src="/Telit5G/images/mobile(10).png" alt="10M">
+                    <figcaption class="caption">Graph #2: 10M</figcaption>
+                </figure>
+            </div>
+            <div class="slide">
+                <figure>
+                    <img src="/Telit5G/images/mobile(20).png" alt="20M">
+                    <figcaption class="caption">Graph #3: 20M</figcaption>
+                </figure>
+            </div>
+            <div class="slide">
+                <figure>
+                    <img src="/Telit5G/images/mobile(50).png" alt="50M">
+                    <figcaption class="caption">Graph #4: 50M</figcaption>
+                </figure>
+            </div>
+            <div class="slide">
+                <figure>
+                    <img src="/Telit5G/images/mobile(75).png" alt="75M">
+                    <figcaption class="caption">Graph #5: 75M</figcaption>
+                </figure>
+            </div>
+            <div class="slide">
+                <figure>
+                    <img src="/Telit5G/images/mobile(100).png" alt="100M">
+                    <figcaption class="caption">Graph #6: 100M</figcaption>
+                </figure>
+            </div>
+            <div class="slide">
+                <figure>
+                    <img src="/Telit5G/images/mobile(115).png" alt="115M">
+                    <figcaption class="caption">Graph #7: 115M</figcaption>
                 </figure>
             </div>
         </div>
