@@ -11,16 +11,18 @@ h1, h2, h3 {
     padding-bottom: 0.3em;
 }
 pre {
-    background-color: #f6f8fa;
+    background-color: #e8eaed; /* Darker background color for pre */
     border-radius: 3px;
     padding: 16px;
     overflow: auto;
+    color: #2c2c2c; /* Darker font color for pre */
 }
 code {
     background-color: rgba(27,31,35,.05);
     border-radius: 3px;
     padding: 0.2em 0.4em;
     font-size: 85%;
+    color: #2c2c2c; /* Darker font color for code */
 }
 img {
     max-width: 100%;
@@ -86,10 +88,10 @@ button:hover {
 .next {
     right: 10px;
 }
-.comment { color: #5c6370; font-style: italic; }
-.command { color: #61afef; }
-.variable { color: #e5c07b; }
-.string { color: #98c379; }
-.operator { color: #c678dd; }
-.keyword { color: #c678dd; }
-.argument { color: #d19a66; }
+.comment { color: #4a4e52; font-style: italic; } /* Darker comment color */
+.command { color: #007acc; } /* Brighter command color */
+.variable { color: #b57f20; }
+.string { color: #6a994e; } /* Brighter string color */
+.operator { color: #9b59b6; } /* Brighter operator color */
+.keyword { color: #9b59b6; } /* Maintain keyword color */
+.argument { color: #d35400; } /* Brighter argument color */
