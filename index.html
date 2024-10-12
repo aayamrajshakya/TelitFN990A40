@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing Telit FN990A40</title>
+    <link rel="stylesheet" href="styles.css">
+  
+</head>
+<body>
+    <h1>Telit FN990A40 as our COTS UE</h1>
+
+    <a href="https://techship.com/product/telit-fn990a40-5g-sub6-m2/?variant=005">Purchase link</a>
+
+    <br>
+   Script we used to run:
+   
+  
+   <pre>
+    <span class="comment">#!/bin/bash</span>
+    
+    <span class="variable">devices</span><span class="operator">=</span><span class="command">$(</span><span class="command">ls</span> <span class="string">/dev/cdc-wdm*</span> <span class="argument">2>/dev/null</span><span class="command">)</span>
+    
+    <span class="keyword">if</span> <span class="operator">[</span> <span class="operator">-z</span> <span class="string">"$devices"</span> <span class="operator">]</span><span class="operator">;</span> <span class="keyword">then</span>
+        <span class="command">echo</span> <span class="string">"No device found"</span>
+        <span class="command">exit</span> <span class="argument">1</span>
+    <span class="keyword">fi</span>
+    
+    <span class="variable">device</span><span class="operator">=</span><span class="command">$(</span><span class="command">echo</span> <span class="string">"$devices"</span> <span class="operator">|</span> <span class="command">head</span> <span class="argument">-n 1</span><span class="command">)</span>
+    <span class="variable">wwan_interface</span><span class="operator">=</span><span class="string">"wwan0"</span>
+    
+    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--dms-set-operating-mode=</span><span class="string">'low-power'</span>
+    <span class="command">sleep</span> <span class="argument">1</span>
+    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--dms-set-operating-mode=</span><span class="string">'online'</span>
+    <span class="command">sleep</span> <span class="argument">1</span>
+    <span class="command">sudo</span> <span class="command">ip</span> <span class="argument">link</span> <span class="argument">set</span> <span class="variable">$wwan_interface</span> <span class="argument">down</span>
+    <span class="command">sleep</span> <span class="argument">1</span>
+    <span class="command">echo</span> <span class="string">'Y'</span> <span class="operator">|</span> <span class="command">sudo</span> <span class="command">tee</span> <span class="string">/sys/class/net/</span><span class="variable">$wwan_interface</span><span class="string">/qmi/raw_ip</span>
+    <span class="command">sleep</span> <span class="argument">2</span>
+    <span class="command">sudo</span> <span class="command">ip</span> <span class="argument">link</span> <span class="argument">set</span> <span class="variable">$wwan_interface</span> <span class="argument">up</span>
+    <span class="command">sleep</span> <span class="argument">1</span>
+    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-p</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--device-open-net=</span><span class="string">'net-raw-ip|net-no-qos-header'</span> <span class="argument">--wds-start-network=</span><span class="string">"apn='internet',ip-type=4"</span> <span class="argument">--client-no-release-cid</span>
+    <span class="command">sleep</span> <span class="argument">2</span>
+    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-p</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--wds-get-packet-service-status</span>
+    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-p</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--wds-get-current-settings</span>
+    <span class="command">sleep</span> <span class="argument">2</span>
+    <span class="command">sudo</span> <span class="command">udhcpc</span> <span class="argument">-q</span> <span class="argument">-f</span> <span class="argument">-i</span> <span class="variable">$wwan_interface</span>
+    </pre>
+    
+
+    <h2>Results:</h2>
+
+    <div class="slider">
+        <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
+        <div class="slides">
+            <div class="slide">
+                <figure>
+                    <img src="/OAIxCOTS/images/20M.png" alt="20M">
+                    <figcaption class="caption">Graph #1: 20M</figcaption>
+                </figure>
+            </div>
+            <div class="slide">
+                <figure>
+                    <img src="/OAIxCOTS/images/50M.png" alt="50M">
+                    <figcaption class="caption">Graph #2: 50M</figcaption>
+                </figure>
+            </div>
+            <div class="slide">
+                <figure>
+                    <img src="/OAIxCOTS/images/100M.png" alt="100M">
+                    <figcaption class="caption">Graph #3: 100M</figcaption>
+                </figure>
+            </div>
+        </div>
+        <button class="next" onclick="moveSlide(1)">&#10095;</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+
+        function moveSlide(step) {
+            const slides = document.querySelector('.slides');
+            const totalSlides = document.querySelectorAll('.slide').length;
+            
+            currentSlide = (currentSlide + step + totalSlides) % totalSlides;
+            slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+        }
+    </script>
+</body>
+</html>
