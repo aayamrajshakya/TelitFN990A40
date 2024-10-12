@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Testing Telit FN990A40</title>
     <link rel="stylesheet" href="styles.css">
-  
 </head>
 <body>
     <h1>Telit FN990A40 as our COTsS UE</h1>
@@ -13,8 +12,8 @@
     <a href="https://techship.com/product/telit-fn990a40-5g-sub6-m2/?variant=005">Purchase link</a>
 
     <br>
-   Script to initiate the connection:
-   <pre>
+    Script to initiate the connection:
+    <pre>
     <span class="comment">#!/bin/bash</span>
     
     <span class="variable">devices</span><span class="operator">=</span><span class="command">$(</span><span class="command">ls</span> <span class="string">/dev/cdc-wdm*</span> <span class="argument">2>/dev/null</span><span class="command">)</span>
@@ -44,16 +43,16 @@
     <span class="command">sleep</span> <span class="argument">2</span>
     <span class="command">sudo</span> <span class="command">udhcpc</span> <span class="argument">-q</span> <span class="argument">-f</span> <span class="argument">-i</span> <span class="variable">$wwan_interface</span></pre>
     
-Script to stop the connection:
-<pre>
+    Script to stop the connection:
+    <pre>
     <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-d</span> <span class="string">/dev/cdc-wdm1</span> <span class="argument">--dms-set-operating-mode=</span><span class="string">"low-power"</span>
     <span class="command">sudo</span> <span class="command">qmi-network</span> <span class="string">/dev/cdc-wdm1</span> <span class="argument">stop</span></pre>
 
     <h2>Results:</h2>
     <h3>Stable</h3>
 
-    <div class="slider">
-        <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
+    <div class="slider" id="stableSlider">
+        <button class="prev" onclick="moveSlide(-1, 'stableSlider')">&#10094;</button>
         <div class="slides">
             <div class="slide">
                 <figure>
@@ -74,13 +73,13 @@ Script to stop the connection:
                 </figure>
             </div>
         </div>
-        <button class="next" onclick="moveSlide(1)">&#10095;</button>
+        <button class="next" onclick="moveSlide(1, 'stableSlider')">&#10095;</button>
     </div>
 
     <h3>Mobile:</h3>
 
-    <div class="slider">
-        <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
+    <div class="slider" id="mobileSlider">
+        <button class="prev" onclick="moveSlide(-1, 'mobileSlider')">&#10094;</button>
         <div class="slides">
             <div class="slide">
                 <figure>
@@ -125,18 +124,21 @@ Script to stop the connection:
                 </figure>
             </div>
         </div>
-        <button class="next" onclick="moveSlide(1)">&#10095;</button>
+        <button class="next" onclick="moveSlide(1, 'mobileSlider')">&#10095;</button>
     </div>
 
     <script>
-        let currentSlide = 0;
+        const sliders = {
+            stableSlider: { currentSlide: 0, totalSlides: 3 },
+            mobileSlider: { currentSlide: 0, totalSlides: 7 }
+        };
 
-        function moveSlide(step) {
-            const slides = document.querySelector('.slides');
-            const totalSlides = document.querySelectorAll('.slide').length;
+        function moveSlide(step, sliderId) {
+            const slider = sliders[sliderId];
+            const slides = document.querySelector(`#${sliderId} .slides`);
             
-            currentSlide = (currentSlide + step + totalSlides) % totalSlides;
-            slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+            slider.currentSlide = (slider.currentSlide + step + slider.totalSlides) % slider.totalSlides;
+            slides.style.transform = `translateX(-${slider.currentSlide * 100}%)`;
         }
     </script>
 </body>
