@@ -17,42 +17,81 @@
     <a href="https://techship.com/product/telit-fn990a40-5g-sub6-m2/?variant=005" target="_blank">Purchase link</a>
 
     <br>
-    Script to initiate the connection:
-    <pre>
-    <span class="comment">#!/bin/bash</span>
-    
-    <span class="variable">devices</span><span class="operator">=</span><span class="command">$(</span><span class="command">ls</span> <span class="string">/dev/cdc-wdm*</span> <span class="argument">2>/dev/null</span><span class="command">)</span>
-    
-    <span class="keyword">if</span> <span class="operator">[</span> <span class="operator">-z</span> <span class="string">"$devices"</span> <span class="operator">]</span><span class="operator">;</span> <span class="keyword">then</span>
-        <span class="command">echo</span> <span class="string">"No device found"</span>
-        <span class="command">exit</span> <span class="argument">1</span>
-    <span class="keyword">fi</span>
-    
-    <span class="variable">device</span><span class="operator">=</span><span class="command">$(</span><span class="command">echo</span> <span class="string">"$devices"</span> <span class="operator">|</span> <span class="command">head</span> <span class="argument">-n 1</span><span class="command">)</span>
-    <span class="variable">wwan_interface</span><span class="operator">=</span><span class="string">"wwan0"</span>
-    
-    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--dms-set-operating-mode=</span><span class="string">'low-power'</span>
-    <span class="command">sleep</span> <span class="argument">1</span>
-    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--dms-set-operating-mode=</span><span class="string">'online'</span>
-    <span class="command">sleep</span> <span class="argument">1</span>
-    <span class="command">sudo</span> <span class="command">ip</span> <span class="argument">link</span> <span class="argument">set</span> <span class="variable">$wwan_interface</span> <span class="argument">down</span>
-    <span class="command">sleep</span> <span class="argument">1</span>
-    <span class="command">echo</span> <span class="string">'Y'</span> <span class="operator">|</span> <span class="command">sudo</span> <span class="command">tee</span> <span class="string">/sys/class/net/</span><span class="variable">$wwan_interface</span><span class="string">/qmi/raw_ip</span>
-    <span class="command">sleep</span> <span class="argument">2</span>
-    <span class="command">sudo</span> <span class="command">ip</span> <span class="argument">link</span> <span class="argument">set</span> <span class="variable">$wwan_interface</span> <span class="argument">up</span>
-    <span class="command">sleep</span> <span class="argument">1</span>
-    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-p</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--device-open-net=</span><span class="string">'net-raw-ip|net-no-qos-header'</span> <span class="argument">--wds-start-network=</span><span class="string">"apn='internet',ip-type=4"</span> <span class="argument">--client-no-release-cid</span>
-    <span class="command">sleep</span> <span class="argument">2</span>
-    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-p</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--wds-get-packet-service-status</span>
-    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-p</span> <span class="argument">-d</span> <span class="variable">$device</span> <span class="argument">--wds-get-current-settings</span>
-    <span class="command">sleep</span> <span class="argument">2</span>
-    <span class="command">sudo</span> <span class="command">udhcpc</span> <span class="argument">-q</span> <span class="argument">-f</span> <span class="argument">-i</span> <span class="variable">$wwan_interface</span></pre>
-    
     <br>
-    Script to stop the connection:
+    Script to initiate the connection (<a href="https://github.com/aayamrajshakya/Telit5G/blob/main/start_modem.sh" target="_blank">start_modem.sh</a>):
     <pre>
-    <span class="command">sudo</span> <span class="command">qmicli</span> <span class="argument">-d</span> <span class="string">/dev/cdc-wdm1</span> <span class="argument">--dms-set-operating-mode=</span><span class="string">"low-power"</span>
-    <span class="command">sudo</span> <span class="command">qmi-network</span> <span class="string">/dev/cdc-wdm1</span> <span class="argument">stop</span></pre>
+#!/bin/bash
+
+devices=$(ls /dev/cdc-wdm* 2>/dev/null)
+
+if [ -z "$devices" ]; then
+    echo "No device found"
+    exit 1
+fi
+
+device=$(echo "$devices" | head -n 1)
+wwan_interface=$(sudo qmicli -d "$device" --get-wwan-iface)
+
+if [ -z "$wwan_interface" ]; then
+    echo "Failed to get WWAN interface"
+    exit 1
+fi
+
+echo "Device : $device and WWAN interface: $wwan_interface"
+
+check_connection_status() {
+    status=$(sudo qmicli -p -d "$device" --wds-get-packet-service-status)
+    if [[ $status == *"Connection status: 'connected'"* ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+setup_connection() {
+    sudo qmicli -d "$device" --dms-set-operating-mode='low-power'
+    sleep 1
+    sudo qmicli -d "$device" --dms-set-operating-mode='online'
+    sleep 1
+    sudo ip link set "$wwan_interface" down
+    sleep 1
+    echo 'Y' | sudo tee /sys/class/net/"$wwan_interface"/qmi/raw_ip
+    sleep 2
+    sudo ip link set "$wwan_interface" up
+    sleep 1
+    sudo qmicli -p -d "$device" --device-open-net='net-raw-ip|net-no-qos-header' --wds-start-network="apn='internet',ip-type=4" --client-no-release-cid
+    sleep 2
+}
+
+while true; do
+    setup_connection
+    
+    if check_connection_status; then
+        echo "Device is connected. Continuing with current settings."
+        sudo qmicli -p -d "$device" --wds-get-current-settings
+        sudo udhcpc -q -f -i "$wwan_interface"
+        break
+    else
+        echo "Device is not connected. Resetting and attempting to connect again."
+        sudo qmicli -d "$device" --dms-set-operating-mode=reset
+        echo "wait 30 seconds"
+        sleep 30
+    fi
+done
+</pre>
+    <br>
+    Script to stop the connection (<a href="https://github.com/aayamrajshakya/Telit5G/blob/main/stop_modem.sh" target="_blank">stop_modem.sh</a>):
+<pre>
+#!/bin/bash
+
+device=$(ls /dev/cdc-wdm* 2>/dev/null | head -n 1)
+        
+[ -z "$device" ] && { echo "No device found"; exit 1; }
+        
+sudo qmicli -d "$device" --dms-set-operating-mode="low-power"
+sleep 2
+sudo qmi-network "$device" stop
+    </pre>
 
     <h2>Results:</h2>
     Used <a href="https://github.com/aayamrajshakya/Parser-Plotter/blob/main/parser.py" target="_blank">parser</a> and <a href="https://github.com/aayamrajshakya/Parser-Plotter/blob/main/plotter.py" target="_blank">plotter</a> to process the raw iPerf log files.

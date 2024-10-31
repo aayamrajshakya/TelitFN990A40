@@ -88,10 +88,3 @@ button:hover {
 .next {
     right: 10px;
 }
-.comment { color: #4a4e52; font-style: italic; } /* Darker comment color */
-.command { color: #007acc; } /* Brighter command color */
-.variable { color: #b57f20; }
-.string { color: #6a994e; } /* Brighter string color */
-.operator { color: #9b59b6; } /* Brighter operator color */
-.keyword { color: #9b59b6; } /* Maintain keyword color */
-.argument { color: #d35400; } /* Brighter argument color */
