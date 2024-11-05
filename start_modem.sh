@@ -52,7 +52,7 @@ while true; do
     else
         echo "Device is not connected. Resetting and attempting to connect again."
         sudo qmicli -d "$device" --dms-set-operating-mode=reset
-        echo "wait 30 seconds"
-        sleep 30
+        echo "Wait 22 seconds to let the module restart."
+        sleep 22
     fi
 done
